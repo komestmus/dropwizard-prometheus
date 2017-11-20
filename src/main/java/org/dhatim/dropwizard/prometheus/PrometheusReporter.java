@@ -182,9 +182,15 @@ public class PrometheusReporter extends ScheduledReporter {
                 prometheus.sendTimer(prefixed(entry.getKey()), entry.getValue());
             }
 
-            prometheus.flush();
+            //prometheus.flush();
         } catch (IOException e) {
             LOGGER.warn("Unable to report to Prometheus", prometheus, e);
+        } finally {
+            try {
+                prometheus.close();
+            } catch (Exception e)   {
+                LOGGER.error("Unable to close Prometheus connection", e);
+            }
         }
 
     }
