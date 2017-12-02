@@ -6,9 +6,9 @@
     </prerequisites>
 
     <groupId>org.dhatim</groupId>
-    <artifactId>dropwizard-prometheus</artifactId>
+    <artifactId>dropwizard-prometheus-komestmus</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>Dropwizard Prometheus bridge</name>
     <url>https://github.com/dhatim/dropwizard-prometheus</url>
     <description>

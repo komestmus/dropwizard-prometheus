@@ -8,6 +8,7 @@ import com.codahale.metrics.Timer;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -23,20 +24,44 @@ public class Pushgateway implements PrometheusSender {
 
     private final String hostname;
     private final int port;
-    private final String job;
+    private final String app;
+    private final String instance;
+    private final String group;
+
+    private final String URL;
 
     private HttpURLConnection connection;
     private PrometheusTextWriter writer;
     private DropwizardMetricsExporter exporter;
 
     public Pushgateway(String hostname, int port) {
-        this(hostname, port, "prometheus");
+        this(hostname, port, "prometheus-instance","prometheus-app","prometheus-group");
     }
 
-    public Pushgateway(String hostname, int port, String job) {
+    public Pushgateway(String hostname, int port, String instance, String app, String group) {
         this.hostname = hostname;
         this.port = port;
-        this.job = job;
+        this.app = app;
+        this.instance=instance;
+        this.group=group;
+        String url;
+        try {
+            url = new StringBuffer().append("http://")
+                    .append(hostname).append(":")
+                    .append(port)
+                    .append("/metrics/group/")
+                    .append(URLEncoder.encode(group, "UTF-8"))
+                    .append("/app/")
+                    .append(URLEncoder.encode(app, "UTF-8"))
+                    .append("/instance/")
+                    .append(URLEncoder.encode(app, "UTF-8")).toString();
+        } catch (UnsupportedEncodingException ex)   {
+            url = new StringBuffer().append("http://")
+                    .append(hostname).append(":")
+                    .append(port)
+                    .append("/metrics/unknown").toString();
+        }
+        this.URL = url;
     }
 
     @Override
@@ -66,8 +91,8 @@ public class Pushgateway implements PrometheusSender {
             throw new IllegalStateException("Already connected");
         }
 
-        String url = "http://" + hostname + ":" + port + "/metrics/job/" + URLEncoder.encode(job, "UTF-8");
-        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        //String url = "http://" + hostname + ":" + port + "/metrics/job/" + URLEncoder.encode(job, "UTF-8");
+        HttpURLConnection conn = (HttpURLConnection) new URL(getURL()).openConnection();
         conn.setRequestProperty("Content-Type", TextFormat.REQUEST_CONTENT_TYPE);
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
@@ -111,6 +136,10 @@ public class Pushgateway implements PrometheusSender {
         if (writer != null) {
             writer.flush();
         }
+    }
+
+    public String getURL() {
+        return URL;
     }
 
     @Override
