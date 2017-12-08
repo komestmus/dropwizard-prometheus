@@ -49,17 +49,17 @@ public class Pushgateway implements PrometheusSender {
             url = new StringBuffer().append("http://")
                     .append(hostname).append(":")
                     .append(port)
-                    .append("/metrics/group/")
+                    .append("/metrics/apps/")
                     .append(URLEncoder.encode(group, "UTF-8"))
-                    .append("/app/")
+                    .append("/services/")
                     .append(URLEncoder.encode(app, "UTF-8"))
-                    .append("/instance/")
+                    .append("/instances/")
                     .append(URLEncoder.encode(app, "UTF-8")).toString();
         } catch (UnsupportedEncodingException ex)   {
             url = new StringBuffer().append("http://")
                     .append(hostname).append(":")
                     .append(port)
-                    .append("/metrics/unknown").toString();
+                    .append("/metrics/app/unknown").toString();
         }
         this.URL = url;
     }

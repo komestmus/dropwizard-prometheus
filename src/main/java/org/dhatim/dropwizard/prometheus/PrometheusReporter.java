@@ -164,7 +164,8 @@ public class PrometheusReporter extends ScheduledReporter {
     @SuppressWarnings("rawtypes")
     public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms, SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
         try {
-            prometheus.connect();
+            if (!prometheus.isConnected())
+                prometheus.connect();
 
             for (Map.Entry<String, Gauge> entry : gauges.entrySet()) {
                 prometheus.sendGauge(prefixed(entry.getKey()), entry.getValue());
@@ -182,14 +183,13 @@ public class PrometheusReporter extends ScheduledReporter {
                 prometheus.sendTimer(prefixed(entry.getKey()), entry.getValue());
             }
 
-            //prometheus.flush();
+            prometheus.flush();
         } catch (IOException e) {
             LOGGER.warn("Unable to report to Prometheus", prometheus, e);
-        } finally {
             try {
                 prometheus.close();
-            } catch (Exception e)   {
-                LOGGER.error("Unable to close Prometheus connection", e);
+            } catch (Exception ex)   {
+                LOGGER.error("Unable to close Prometheus connection", ex);
             }
         }
 
