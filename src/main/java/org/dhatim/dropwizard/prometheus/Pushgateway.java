@@ -25,8 +25,8 @@ public class Pushgateway implements PrometheusSender {
     private final String hostname;
     private final int port;
     private final String app;
-    private final String instance;
-    private final String group;
+    private final String source;
+    private final String service;
 
     private final String URL;
 
@@ -38,28 +38,28 @@ public class Pushgateway implements PrometheusSender {
         this(hostname, port, "prometheus-instance","prometheus-app","prometheus-group");
     }
 
-    public Pushgateway(String hostname, int port, String instance, String app, String group) {
+    public Pushgateway(String hostname, int port,  String app, String service, String source) {
         this.hostname = hostname;
         this.port = port;
         this.app = app;
-        this.instance=instance;
-        this.group=group;
+        this.service=service;
+        this.source=source;
         String url;
         try {
             url = new StringBuffer().append("http://")
                     .append(hostname).append(":")
                     .append(port)
                     .append("/metrics/apps/")
-                    .append(URLEncoder.encode(group, "UTF-8"))
-                    .append("/services/")
                     .append(URLEncoder.encode(app, "UTF-8"))
-                    .append("/instances/")
-                    .append(URLEncoder.encode(app, "UTF-8")).toString();
+                    .append("/services/")
+                    .append(URLEncoder.encode(service, "UTF-8"))
+                    .append("/sources/")
+                    .append(URLEncoder.encode(source, "UTF-8")).toString();
         } catch (UnsupportedEncodingException ex)   {
             url = new StringBuffer().append("http://")
                     .append(hostname).append(":")
                     .append(port)
-                    .append("/metrics/app/unknown").toString();
+                    .append("/metrics/apps/unknown").toString();
         }
         this.URL = url;
     }
